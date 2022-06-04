@@ -11,8 +11,8 @@ const Home: NextPage<{ current: any, today: any, tomorrow: any }> = ({ current, 
   const todayFromNow = today.slice(nowIndex)
   const threeHours = todayFromNow.concat(tomorrow).map((day, index, arr) => {
     const dayOnePrice = arr[index].total;
-    const dayTwoPrice = arr[index + 1]?.total || 0;
-    const dayThreePrice = arr[index + 2]?.total || 0;
+    const dayTwoPrice = arr[index + 1]?.total || 10000;
+    const dayThreePrice = arr[index + 2]?.total || 10000;
     
     return { startsAt: `${new Date(day.startsAt).toLocaleDateString()} - ${new Date(day.startsAt).toLocaleTimeString()}` , total: (dayOnePrice + dayTwoPrice + dayThreePrice).toFixed(3) }
   }).sort((a, b) => a.total - b.total)
