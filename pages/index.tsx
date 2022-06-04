@@ -5,8 +5,17 @@ import styles from '../styles/Home.module.css'
 import { gql } from "@apollo/client";
 import client from "../apollo-client";
 
-const Home: NextPage<{ viewer: any }> = ({ viewer }) => {
-  console.log(viewer);
+const Home: NextPage<{ current: any, today: any, tomorrow: any }> = ({ current, today, tomorrow }) => {
+  const now = current.startsAt;
+  const nowIndex = today.findIndex(({ startsAt }) => startsAt === now );
+  const todayFromNow = today.slice(nowIndex)
+  const threeHours = todayFromNow.concat(tomorrow).map((day, index, arr) => {
+    const dayOnePrice = arr[index].total;
+    const dayTwoPrice = arr[index + 1]?.total || 0;
+    const dayThreePrice = arr[index + 2]?.total || 0;
+    
+    return { startsAt: `${new Date(day.startsAt).toLocaleDateString()} - ${new Date(day.startsAt).toLocaleTimeString()}` , total: (dayOnePrice + dayTwoPrice + dayThreePrice).toFixed(3) }
+  }).sort((a, b) => a.total - b.total)
   
   return (
     <div className={styles.container}>
@@ -17,7 +26,13 @@ const Home: NextPage<{ viewer: any }> = ({ viewer }) => {
       </Head>
 
       <main className={styles.main}>
-        {viewer.name}
+        <h1>Bästa tre timmar</h1>
+        <h2>{threeHours[0].startsAt} ({threeHours[0].total})</h2>
+        ================================ <br />
+        <h2>{threeHours[1].startsAt} ({threeHours[1].total})</h2>
+        <br />
+        ================================ <br />
+        <h2>{threeHours[2].startsAt} ({threeHours[2].total})</h2>
       </main>
     </div>
   )
@@ -59,8 +74,9 @@ export async function getStaticProps() {
     `,
   });
   console.log(data);
+  const priceInfo = data.viewer.homes[0].currentSubscription.priceInfo
   
   return {
-    props: data,
+    props: priceInfo,
   };
 }
