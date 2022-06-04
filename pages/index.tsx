@@ -4,18 +4,35 @@ import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import { gql } from "@apollo/client";
 import client from "../apollo-client";
+import { isDynamicRoute } from 'next/dist/shared/lib/router/utils';
+import { number } from 'prop-types';
 
-const Home: NextPage<{ current: any, today: any, tomorrow: any }> = ({ current, today, tomorrow }) => {
+interface IDay {
+  startsAt: string;
+  total: number;
+}
+
+interface IPeriod {
+  startsAt: string;
+  total: number;
+}
+
+function toPeriod({ startsAt }: IDay, index: number, arr: IDay[]): IPeriod {
+  const dayOnePrice = arr[index].total;
+  const dayTwoPrice = arr[index + 1]?.total || 10000;
+  const dayThreePrice = arr[index + 2]?.total || 10000;
+  const startsAtDate = new Date(startsAt);
+  const startsAtString = `${startsAtDate.toLocaleDateString()} - ${startsAtDate.toLocaleTimeString()}`;
+  const total = (dayOnePrice + dayTwoPrice + dayThreePrice)
+  
+  return { startsAt: startsAtString, total }
+}
+
+const Home: NextPage<{ current: IDay, today: IDay[], tomorrow: IDay[] }> = ({ current, today, tomorrow }) => {
   const now = current.startsAt;
   const nowIndex = today.findIndex(({ startsAt }) => startsAt === now );
   const todayFromNow = today.slice(nowIndex)
-  const threeHours = todayFromNow.concat(tomorrow).map((day, index, arr) => {
-    const dayOnePrice = arr[index].total;
-    const dayTwoPrice = arr[index + 1]?.total || 10000;
-    const dayThreePrice = arr[index + 2]?.total || 10000;
-    
-    return { startsAt: `${new Date(day.startsAt).toLocaleDateString()} - ${new Date(day.startsAt).toLocaleTimeString()}` , total: (dayOnePrice + dayTwoPrice + dayThreePrice).toFixed(3) }
-  }).sort((a, b) => a.total - b.total)
+  const threeHours = todayFromNow.concat(tomorrow).map(toPeriod).sort((a, b) => a.total - b.total)
   
   return (
     <div className={styles.container}>
@@ -27,12 +44,11 @@ const Home: NextPage<{ current: any, today: any, tomorrow: any }> = ({ current, 
 
       <main className={styles.main}>
         <h1>Bästa tre timmar</h1>
-        <h2>{threeHours[0].startsAt} ({threeHours[0].total})</h2>
-        ================================ <br />
-        <h2>{threeHours[1].startsAt} ({threeHours[1].total})</h2>
-        <br />
-        ================================ <br />
-        <h2>{threeHours[2].startsAt} ({threeHours[2].total})</h2>
+        {threeHours.slice(0, 5).map(({ startsAt, total }) => {
+          return <>
+            <h2>{startsAt} ({total.toFixed(3)})</h2>
+          </>
+        })}
       </main>
     </div>
   )
