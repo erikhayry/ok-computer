@@ -46,7 +46,7 @@ const Home: NextPage<{ current: IDay, today: IDay[], tomorrow: IDay[] }> = ({ cu
         <h1>Bästa tre timmar</h1>
         {threeHours.slice(0, 5).map(({ startsAt, total }) => {
           return <>
-            <h2>{startsAt} ({total.toFixed(3)})</h2>
+            <h2 key={startsAt}>{startsAt} ({total.toFixed(3)})</h2>
           </>
         })}
       </main>
