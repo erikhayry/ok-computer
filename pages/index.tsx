@@ -28,12 +28,12 @@ function toPeriod({ startsAt }: IDay, index: number, arr: IDay[]): IPeriod {
   return { startsAt: startsAtString, total }
 }
 
-const Home: NextPage<{ current: IDay, today: IDay[], tomorrow: IDay[] }> = ({ current, today, tomorrow }) => {
+const Home: NextPage<{priceInfo: { current: IDay, today: IDay[], tomorrow: IDay[] }, nowDateString: string }> = ({priceInfo : { current, today, tomorrow }, nowDateString}) => {
   const now = current.startsAt;
   const nowIndex = today.findIndex(({ startsAt }) => startsAt === now );
   const todayFromNow = today.slice(nowIndex)
   const threeHours = todayFromNow.concat(tomorrow).map(toPeriod).sort((a, b) => a.total - b.total)
-  
+
   return (
     <div className={styles.container}>
       <Head>
@@ -43,7 +43,7 @@ const Home: NextPage<{ current: IDay, today: IDay[], tomorrow: IDay[] }> = ({ cu
       </Head>
 
       <main className={styles.main}>
-        <h1>Bästa tre timmar</h1>
+        <h1>Bästa tre timmar ({nowDateString})</h1>
         {threeHours.slice(0, 5).map(({ startsAt, total }) => {
           return <>
             <h2 key={startsAt}>{startsAt} ({total.toFixed(3)})</h2>
@@ -89,10 +89,11 @@ export async function getStaticProps() {
       }
     `,
   });
-  console.log(data);
+
   const priceInfo = data.viewer.homes[0].currentSubscription.priceInfo
-  
+  const nowDateString = `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`;
+
   return {
-    props: priceInfo,
+    props: {priceInfo, nowDateString},
   };
 }
