@@ -44,11 +44,7 @@ const Home: NextPage<{priceInfo: { current: IDay, today: IDay[], tomorrow: IDay[
 
       <main className={styles.main}>
         <h1>Bästa tre timmar ({nowDateString})</h1>
-        {threeHours.slice(0, 5).map(({ startsAt, total }) => {
-          return <>
-            <h2 key={startsAt}>{startsAt} ({total.toFixed(3)})</h2>
-          </>
-        })}
+        {threeHours.slice(0, 5).map(({ startsAt, total }) => (<h2 key={startsAt}>{startsAt} ({total.toFixed(3)})</h2>))}
       </main>
     </div>
   )
@@ -56,7 +52,7 @@ const Home: NextPage<{priceInfo: { current: IDay, today: IDay[], tomorrow: IDay[
 
 export default Home
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.query({
     query: gql`
       query Viewer {
