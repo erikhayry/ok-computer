@@ -7,29 +7,38 @@ async function fetch<T>(query: DocumentNode): Promise<ApolloQueryResult<T>>{
     return await client.query({ query })
 }
 
-function outPriceWithoutData(item: any): item is IPrice {
+function isPrice(item: any): item is IPrice{
     return item.total && item.startsAt
+}
+
+function outPriceWithoutData(item: any): item is IPrice {
+    return isPrice(item)
 }
 
 function outUndefined<T>(value: T | undefined | null): value is T {
     return <T>value !== undefined && <T>value !== null;
-  }
+}
+
+function mapToPricesWithData(hours: ({
+    total?: number | null | undefined;
+    startsAt?: string | null | undefined;
+} | null)[] = []): IPrice[] {
+    return hours.filter(outUndefined).filter(outPriceWithoutData)
+}
 
 function mapViewerHomesQueryToPriceInfo(data: ViewerHomesQuery): IPriceInfo | undefined {
     const priceInfo = data?.viewer.homes[0]?.currentSubscription?.priceInfo;
-
-    const now = priceInfo?.current?.startsAt;
-    const today = priceInfo?.today?.filter(outUndefined).filter(outPriceWithoutData);
-    const tomorrow = priceInfo?.tomorrow?.filter(outUndefined).filter(outPriceWithoutData);
-
-    if(now && today && tomorrow){
+    const current = priceInfo?.current;
+    const today = mapToPricesWithData(priceInfo?.today);
+    const tomorrow = mapToPricesWithData(priceInfo?.tomorrow);
+    
+    if(current?.startsAt && today && tomorrow){
         return {
-            now, today, tomorrow
+            currentStartsAt: current.startsAt, today, tomorrow
         }
     }
-
+    
     return undefined;
-
 }
 
 export async function getPriceInfo(): Promise<IPriceInfo | undefined> {

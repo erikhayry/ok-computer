@@ -4,8 +4,7 @@ interface IPrice {
 }
 
 interface IPriceInfo {
-    now: string
+    currentStartsAt: string 
     today: IPrice[]
     tomorrow: IPrice[]
 }
-  
