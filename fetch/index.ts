@@ -28,6 +28,8 @@ function mapToPricesWithData(hours: ({
 
 function mapViewerHomesQueryToPriceInfo(data: ViewerHomesQuery): IPriceInfo | undefined {
     const priceInfo = data?.viewer.homes[0]?.currentSubscription?.priceInfo;
+    console.log(priceInfo);
+    
     const current = priceInfo?.current;
     const today = mapToPricesWithData(priceInfo?.today);
     const tomorrow = mapToPricesWithData(priceInfo?.tomorrow);

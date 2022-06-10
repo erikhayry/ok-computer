@@ -27,18 +27,19 @@ export function mapPriceInfoToPrices(priceInfo: IPriceInfo): IPrice[] {
   return allHours.slice(nowIndex);
 }
 
-function mapHoursToPeriods(prices: IPrice[]): IPrice[]{
+export function mapHoursToPeriods(prices: IPrice[]): IPrice[]{
   return prices.map(toPeriod).filter(outNull).sort(byTotal)
 }
 
-export function getPeriods(priceInfo: IPriceInfo): IPrice[] {  
+export function getPeriods(priceInfo: IPriceInfo, size: number): IPrice[] {  
     const hourlyPrices = mapPriceInfoToPrices(priceInfo);    
     const periodsSorted = mapHoursToPeriods(hourlyPrices);
 
-    return periodsSorted.slice(0, 5)
+    return periodsSorted.slice(0, size)
 }
 
 export function toDate(dateString: string){
   const date = new Date(dateString)
+  
   return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`; 
 }

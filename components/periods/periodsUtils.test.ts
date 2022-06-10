@@ -1,4 +1,4 @@
-import { mapPriceInfoToPrices, toPeriod } from "./periodsUtils";
+import { getPeriods, mapHoursToPeriods, mapPriceInfoToPrices, toDate, toPeriod } from "./periodsUtils";
 
 const MOCK_PRICE = (total: number, startsAt: string): IPrice => ({
     total,
@@ -15,7 +15,7 @@ const MOCK_PRICE_INFO: IPriceInfo = {
 
 const MOCK_HOURS =  MOCK_PRICES([0, 1, 2, 3, 4, 5]);
 
-test('toPeriod', () => {
+test('toPeriod', () => {    
     const period1 = toPeriod(MOCK_PRICE(0, "0"), 0, MOCK_HOURS);
     const expected1 = {"startsAt": "0", "total": 3}
     expect(period1).toStrictEqual(expected1);
@@ -51,4 +51,21 @@ test('mapPriceInfoToPrices', () => {
     const pricesFromTomorrow = mapPriceInfoToPrices({...MOCK_PRICE_INFO, currentStartsAt:  "3" })
     const expectedFromTomorrow = [{ startsAt: "3", total: 3},  { startsAt: "4", total: 4},  { startsAt: "5", total: 5}]
     expect(pricesFromTomorrow).toStrictEqual(expectedFromTomorrow)
+})
+
+test('mapHoursToPeriods', () => {
+    const periods = mapHoursToPeriods(MOCK_PRICES([5, 4, 3, 2, 1, 0]));
+    const expected = [{ startsAt: "3", total: 3},  { startsAt: "2", total: 6},  { startsAt: "1", total: 9}, { startsAt: "0", total: 12}];
+    expect(periods).toStrictEqual(expected)
+})
+
+test('getPeriods', () => {
+    const periods = getPeriods(MOCK_PRICE_INFO, 3);
+    const expected = [{ startsAt: "0", total: 3},  { startsAt: "1", total: 6},  { startsAt: "2", total: 9}];
+
+    expect(periods).toStrictEqual(expected)
+})
+
+test('toDate', () => {
+    expect(toDate("2022-06-10T00:00:00.000+02:00")).toEqual("2022-06-10 00:00:00")
 })

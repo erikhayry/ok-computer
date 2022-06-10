@@ -5,7 +5,7 @@ interface IProps {
 }
 
 export const Periods = ({priceInfo}: IProps) => {    
-    const periods = getPeriods(priceInfo)    
+    const periods = getPeriods(priceInfo, 5)    
     
     return <ul>
         {periods.map(({ startsAt, total }) => (<li key={startsAt} className="text-3xl font-bold underline">{toDate(startsAt)} ({total.toFixed(3)})</li>))}
