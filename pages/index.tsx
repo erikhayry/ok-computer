@@ -1,38 +1,26 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
 import styles from '../styles/Home.module.css'
-import { gql } from "@apollo/client";
-import client from "../apollo-client";
-import { isDynamicRoute } from 'next/dist/shared/lib/router/utils';
-import { number } from 'prop-types';
+import { useEffect, useState } from 'react';
+import { getPriceInfo } from '../fetch';
+import { Hours } from '../components/hours/hours';
 
-interface IDay {
-  startsAt: string;
-  total: number;
-}
+const Home: NextPage = () => {
+  const [priceInfo, setPriceInfo] = useState<IPriceInfo | undefined>(undefined)
 
-interface IPeriod {
-  startsAt: string;
-  total: number;
-}
+  useEffect(() => {
+    async function fetch() {
+      const priceInfo = await getPriceInfo();
+      setPriceInfo(priceInfo)    
+    }
 
-function toPeriod({ startsAt }: IDay, index: number, arr: IDay[]): IPeriod {
-  const dayOnePrice = arr[index].total;
-  const dayTwoPrice = arr[index + 1]?.total || 10000;
-  const dayThreePrice = arr[index + 2]?.total || 10000;
-  const startsAtDate = new Date(startsAt);
-  const startsAtString = `${startsAtDate.toLocaleDateString()} - ${startsAtDate.toLocaleTimeString()}`;
-  const total = (dayOnePrice + dayTwoPrice + dayThreePrice)
-  
-  return { startsAt: startsAtString, total }
-}
+    fetch()
+  }, [])
 
-const Home: NextPage<{priceInfo: { current: IDay, today: IDay[], tomorrow: IDay[] }, nowDateString: string }> = ({priceInfo : { current, today, tomorrow }, nowDateString}) => {
-  const now = current.startsAt;
-  const nowIndex = today.findIndex(({ startsAt }) => startsAt === now );
-  const todayFromNow = today.slice(nowIndex)
-  const threeHours = todayFromNow.concat(tomorrow).map(toPeriod).sort((a, b) => a.total - b.total)
+  if(!priceInfo){
+    return null
+  }
+
 
   return (
     <div className={styles.container}>
@@ -43,8 +31,7 @@ const Home: NextPage<{priceInfo: { current: IDay, today: IDay[], tomorrow: IDay[
       </Head>
 
       <main className={styles.main}>
-        <h1>Bästa tre timmar ({nowDateString})</h1>
-        {threeHours.slice(0, 5).map(({ startsAt, total }) => (<h2 key={startsAt}>{startsAt} ({total.toFixed(3)})</h2>))}
+        <Hours priceInfo={priceInfo} />
       </main>
     </div>
   )
@@ -52,44 +39,6 @@ const Home: NextPage<{priceInfo: { current: IDay, today: IDay[], tomorrow: IDay[
 
 export default Home
 
-export async function getServerSideProps() {
-  const { data } = await client.query({
-    query: gql`
-      query Viewer {
-        viewer {
-          homes {
-            currentSubscription{
-              priceInfo{
-                current{
-                  total
-                  energy
-                  tax
-                  startsAt
-                }
-                today {
-                  total
-                  energy
-                  tax
-                  startsAt
-                }
-                tomorrow {
-                  total
-                  energy
-                  tax
-                  startsAt
-                }
-              }
-            }
-          }
-        }
-      }
-    `,
-  });
-
-  const priceInfo = data.viewer.homes[0].currentSubscription.priceInfo
-  const nowDateString = `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`;
-
-  return {
-    props: {priceInfo, nowDateString},
-  };
+function ViewerHomeQuery<T>(ViewerHomeQuery: any): { loading: any; error: any; data: any; } {
+  throw new Error('Function not implemented.');
 }

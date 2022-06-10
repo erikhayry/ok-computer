@@ -1,0 +1,21 @@
+query viewerHomes {
+  viewer {
+    homes {
+      currentSubscription {
+        priceInfo {
+          current {
+            startsAt
+          }
+          today {
+            total
+            startsAt
+          }
+          tomorrow {
+            total
+            startsAt
+          }
+        }
+      }
+    }
+  }
+}

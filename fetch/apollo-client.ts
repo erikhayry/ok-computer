@@ -1,15 +1,18 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import getConfig from 'next/config'
+
+const { publicRuntimeConfig } = getConfig()
 
 const httpLink = createHttpLink({
   uri: "https://api.tibber.com/v1-beta/gql",
 });
 
-const authLink = setContext((_, { headers }) => {
+const authLink = setContext((_, { headers }) => {  
   return {
     headers: {
       ...headers,
-      authorization: `Bearer ${process.env.API_TOKEN}`
+      authorization: `Bearer ${publicRuntimeConfig.apiToken}`
     }
   }
 });
