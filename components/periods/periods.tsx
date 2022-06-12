@@ -1,3 +1,4 @@
+import { printCurrency } from '../../utils/currency'
 import { getPeriods, toDate } from './periodsUtils'
 
 interface IProps {
@@ -14,7 +15,7 @@ export const Periods = ({ priceInfo }: IProps) => {
                     <div className="card bg-neutral text-neutral-content">
                         <div className="card-body items-center text-center">
                             <h2 className="card-title">{toDate(startsAt)}</h2>
-                            <p>{total.toFixed(3)}</p>
+                            <p>{printCurrency(total)}</p>
                         </div>
                     </div>
                 </li>
