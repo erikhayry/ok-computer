@@ -22,4 +22,13 @@ export const Periods = ({ priceInfo }: IProps) => {
             ))}
         </ul>
     )
-}
+
+
+
+
+
+
+
+
+
+  }
