@@ -2,7 +2,7 @@ function totalSum(total: number, price: IPrice) {
     return total + price.total
 }
 
-export function toPeriod(
+export function toPrice(
     startsAt: string,
     index: number,
     arr: IPrice[],
@@ -18,6 +18,21 @@ export function toPeriod(
     }
 
     return null
+}
+
+export function toPeriod(
+    startsAt: string,
+    total: number,
+    lowestTotal: number,
+    periodLength: number
+): IPeriod {
+    return {
+        startsAt,
+        average: total / periodLength,
+        percentageComparedToLowest: Math.round(
+            (total / lowestTotal) * 100 - 100
+        ),
+    }
 }
 
 function byTotal(a: IPrice, b: IPrice) {
@@ -38,24 +53,44 @@ export function mapPriceInfoToPrices(priceInfo: IPriceInfo): IPrice[] {
     return allHours.slice(nowIndex)
 }
 
-export function mapHoursToPeriods(
+export function getPeriodPrices(
     prices: IPrice[],
     periodLength?: number
 ): IPrice[] {
     return prices
         .map(({ startsAt }, index, arr) =>
-            toPeriod(startsAt, index, arr, periodLength)
+            toPrice(startsAt, index, arr, periodLength)
         )
         .filter(outNull)
-        .sort(byTotal)
 }
 
-export function getPeriods(
+export function mapHoursToPeriods(
+    prices: IPrice[],
+    periodLength?: number
+): IPeriod[] {
+    const periodPrices = getPeriodPrices(prices, periodLength)
+    const periodPricesSorted = periodPrices.sort(byTotal)
+    const lowestTotal = periodPricesSorted[0]?.total
+
+    return periodPricesSorted.map(({ startsAt, total }) =>
+        toPeriod(
+            startsAt,
+            total,
+            lowestTotal,
+            periodLength || periodPricesSorted.length
+        )
+    )
+}
+export function getPeriodInfo(
     priceInfo: IPriceInfo,
     { numberOfPeriods, periodLength }: IConfig
-): IPrice[] {
+): IPeroidInfo {
     const hourlyPrices = mapPriceInfoToPrices(priceInfo)
     const periodsSorted = mapHoursToPeriods(hourlyPrices, periodLength)
 
-    return periodsSorted.slice(0, numberOfPeriods)
+    return {
+        periods: periodsSorted.slice(0, numberOfPeriods),
+        lowestToday: '',
+        lowestTomorrow: '',
+    }
 }

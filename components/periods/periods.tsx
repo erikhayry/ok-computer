@@ -1,6 +1,6 @@
 import { printCurrency } from '../../utils/currency'
 import { toDate } from '../../utils/date'
-import { getPeriods } from './periodsUtils'
+import { getPeriodInfo } from './periodsUtils'
 
 interface IProps {
     priceInfo: IPriceInfo
@@ -12,27 +12,23 @@ const CONFIG: IConfig = {
 }
 
 interface IPeriodProps {
-    total: number
     startsAt: string
-    periodLength: number
-    lowestPrice: number
+    average: number
+    percentageComparedToLowest: number
 }
 
 const Period = ({
-    total,
     startsAt,
-    periodLength,
-    lowestPrice,
+    average,
+    percentageComparedToLowest,
 }: IPeriodProps) => {
-    const price = total / periodLength
-
     return (
         <div className="card bg-neutral text-neutral-content">
             <div className="card-body items-center text-center">
                 <h2 className="card-title">{toDate(startsAt)}</h2>
                 <p>
-                    Snittpris: {printCurrency(price)} (
-                    {Math.round((price / lowestPrice) * 100 - 100)}% dyrare)
+                    Snittpris: {printCurrency(average)} (
+                    {percentageComparedToLowest}% dyrare)
                 </p>
             </div>
         </div>
@@ -40,22 +36,23 @@ const Period = ({
 }
 
 export const Periods = ({ priceInfo }: IProps) => {
-    const periods = getPeriods(priceInfo, CONFIG)
-    const periodLength = CONFIG.periodLength || 1
-    const lowestPrice = periods[0].total / periodLength
+    const { periods } = getPeriodInfo(priceInfo, CONFIG)
 
     return (
         <ul>
-            {periods.map(({ startsAt, total }) => (
-                <li key={startsAt} className="mb-1">
-                    <Period
-                        startsAt={startsAt}
-                        total={total}
-                        periodLength={periodLength}
-                        lowestPrice={lowestPrice}
-                    />
-                </li>
-            ))}
+            {periods.map(
+                ({ startsAt, average, percentageComparedToLowest }) => (
+                    <li key={startsAt} className="mb-1">
+                        <Period
+                            startsAt={startsAt}
+                            average={average}
+                            percentageComparedToLowest={
+                                percentageComparedToLowest
+                            }
+                        />
+                    </li>
+                )
+            )}
         </ul>
     )
 }

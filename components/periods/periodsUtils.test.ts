@@ -1,132 +1,153 @@
 import {
-    getPeriods,
+    getPeriodInfo,
     mapHoursToPeriods,
     mapPriceInfoToPrices,
     toPeriod,
+    toPrice,
 } from './periodsUtils'
 
-const MOCK_CONFIG: IConfig = {
-    numberOfPeriods: 5,
-    periodLength: 3,
-}
+const MOCK_DAY_1_0 = '2022-06-10T00:00:00.000+02:00'
+const MOCK_DAY_1_1 = '2022-06-10T01:00:00.000+02:00'
+const MOCK_DAY_1_2 = '2022-06-10T02:00:00.000+02:00'
+const MOCK_DAY_2_0 = '2022-06-11T00:00:00.000+02:00'
+const MOCK_DAY_2_1 = '2022-06-11T01:00:00.000+02:00'
+const MOCK_DAY_2_2 = '2022-06-11T02:00:00.000+02:00'
 
-const MOCK_PRICE = (total: number, startsAt: string): IPrice => ({
-    total,
-    startsAt,
-})
+const MOCK_HOURS_TODAY = [
+    { startsAt: MOCK_DAY_1_0, total: 0 },
+    { startsAt: MOCK_DAY_1_1, total: 1 },
+    { startsAt: MOCK_DAY_1_2, total: 2 },
+]
 
-const MOCK_PRICES = (totals: number[]): IPrice[] =>
-    totals.map((total, index) => MOCK_PRICE(total, index.toString()))
+const MOCK_HOURS_TOMORROW = [
+    { startsAt: MOCK_DAY_2_0, total: 3 },
+    { startsAt: MOCK_DAY_2_1, total: 4 },
+    { startsAt: MOCK_DAY_2_2, total: 5 },
+]
+
+const MOCK_HOURS: IPrice[] = [...MOCK_HOURS_TODAY, ...MOCK_HOURS_TOMORROW]
 
 const MOCK_PRICE_INFO: IPriceInfo = {
-    currentStartsAt: '0',
-    today: [
-        { startsAt: '0', total: 0 },
-        { startsAt: '1', total: 1 },
-        { startsAt: '2', total: 2 },
-    ],
-    tomorrow: [
-        { startsAt: '3', total: 3 },
-        { startsAt: '4', total: 4 },
-        { startsAt: '5', total: 5 },
-    ],
+    currentStartsAt: MOCK_DAY_1_0,
+    today: MOCK_HOURS_TODAY,
+    tomorrow: MOCK_HOURS_TOMORROW,
 }
 
-const MOCK_HOURS = MOCK_PRICES([0, 1, 2, 3, 4, 5])
-
-test('toPeriod', () => {
-    const period1 = toPeriod('0', 0, MOCK_HOURS, 3)
-    const expected1 = { startsAt: '0', total: 3 }
+test('toPrice', () => {
+    const period1 = toPrice(MOCK_DAY_1_0, 0, MOCK_HOURS, 3)
+    const expected1 = { startsAt: MOCK_DAY_1_0, total: 3 }
     expect(period1).toStrictEqual(expected1)
 
-    const period2 = toPeriod('1', 1, MOCK_HOURS, 3)
-    const expected2 = { startsAt: '1', total: 6 }
+    const period2 = toPrice(MOCK_DAY_1_1, 1, MOCK_HOURS, 3)
+    const expected2 = { startsAt: MOCK_DAY_1_1, total: 6 }
     expect(period2).toStrictEqual(expected2)
 
-    const period3 = toPeriod('2', 2, MOCK_HOURS, 3)
-    const expected3 = { startsAt: '2', total: 9 }
+    const period3 = toPrice(MOCK_DAY_1_2, 2, MOCK_HOURS, 3)
+    const expected3 = { startsAt: MOCK_DAY_1_2, total: 9 }
     expect(period3).toStrictEqual(expected3)
 
-    const period4 = toPeriod('3', 3, MOCK_HOURS, 3)
-    const expected4 = { startsAt: '3', total: 12 }
+    const period4 = toPrice(MOCK_DAY_2_0, 3, MOCK_HOURS, 3)
+    const expected4 = { startsAt: MOCK_DAY_2_0, total: 12 }
     expect(period4).toStrictEqual(expected4)
 
-    const period5 = toPeriod('4', 4, MOCK_HOURS, 3)
+    const period5 = toPrice(MOCK_DAY_2_1, 4, MOCK_HOURS, 3)
     expect(period5).toBeNull()
 
-    const period6 = toPeriod('5', 5, MOCK_HOURS, 3)
+    const period6 = toPrice(MOCK_DAY_2_2, 5, MOCK_HOURS, 3)
     expect(period6).toBeNull()
+})
+
+test('toPeriod', () => {
+    const period1 = toPeriod(MOCK_DAY_1_1, 4, 2, 5)
+    const expected1 = {
+        average: 0.8,
+        percentageComparedToLowest: 100,
+        startsAt: MOCK_DAY_1_1,
+    }
+    expect(period1).toStrictEqual(expected1)
 })
 
 test('mapPriceInfoToPrices', () => {
     const pricesAll = mapPriceInfoToPrices({ ...MOCK_PRICE_INFO })
-    const expectedAll = [
-        { startsAt: '0', total: 0 },
-        { startsAt: '1', total: 1 },
-        { startsAt: '2', total: 2 },
-        { startsAt: '3', total: 3 },
-        { startsAt: '4', total: 4 },
-        { startsAt: '5', total: 5 },
-    ]
-    expect(pricesAll).toStrictEqual(expectedAll)
+    expect(pricesAll).toStrictEqual(MOCK_HOURS)
 
-    const pricesFromToday = mapPriceInfoToPrices({
+    const pricesLaterFromToday = mapPriceInfoToPrices({
         ...MOCK_PRICE_INFO,
-        currentStartsAt: '2',
+        currentStartsAt: MOCK_DAY_1_2,
     })
-    const expectedFromToday = [
-        { startsAt: '2', total: 2 },
-        { startsAt: '3', total: 3 },
-        { startsAt: '4', total: 4 },
-        { startsAt: '5', total: 5 },
+    const expectedLaterFromToday = [
+        { startsAt: MOCK_DAY_1_2, total: 2 },
+        ...MOCK_HOURS_TOMORROW,
     ]
-    expect(pricesFromToday).toStrictEqual(expectedFromToday)
+    expect(pricesLaterFromToday).toStrictEqual(expectedLaterFromToday)
 
     const pricesFromTomorrow = mapPriceInfoToPrices({
         ...MOCK_PRICE_INFO,
-        currentStartsAt: '3',
+        currentStartsAt: MOCK_DAY_2_0,
     })
-    const expectedFromTomorrow = [
-        { startsAt: '3', total: 3 },
-        { startsAt: '4', total: 4 },
-        { startsAt: '5', total: 5 },
-    ]
-    expect(pricesFromTomorrow).toStrictEqual(expectedFromTomorrow)
+    expect(pricesFromTomorrow).toStrictEqual(MOCK_HOURS_TOMORROW)
 })
 
 test('mapHoursToPeriods', () => {
-    const periods = mapHoursToPeriods(MOCK_PRICES([5, 4, 3, 2, 1, 0]), 3)
+    const periods = mapHoursToPeriods(MOCK_HOURS, 3)
     const expected = [
-        { startsAt: '3', total: 3 },
-        { startsAt: '2', total: 6 },
-        { startsAt: '1', total: 9 },
-        { startsAt: '0', total: 12 },
+        { startsAt: MOCK_DAY_1_0, average: 1, percentageComparedToLowest: 0 },
+        {
+            startsAt: MOCK_DAY_1_1,
+            average: 2,
+            percentageComparedToLowest: 100,
+        },
+        {
+            startsAt: MOCK_DAY_1_2,
+            average: 3,
+            percentageComparedToLowest: 200,
+        },
+
+        {
+            startsAt: MOCK_DAY_2_0,
+            average: 4,
+            percentageComparedToLowest: 300,
+        },
     ]
     expect(periods).toStrictEqual(expected)
 })
 
-test('getPeriods', () => {
-    const expectedAll = [
-        { startsAt: '0', total: 3 },
-        { startsAt: '1', total: 6 },
-        { startsAt: '2', total: 9 },
-        { startsAt: '3', total: 12 },
-    ]
+test('getPeriodInfo', () => {
+    const expectedAll = {
+        lowestToday: '',
+        lowestTomorrow: '',
+        periods: [
+            {
+                average: 1,
+                percentageComparedToLowest: 0,
+                startsAt: MOCK_DAY_1_0,
+            },
+            {
+                average: 2,
+                percentageComparedToLowest: 100,
+                startsAt: MOCK_DAY_1_1,
+            },
+            {
+                average: 3,
+                percentageComparedToLowest: 200,
+                startsAt: MOCK_DAY_1_2,
+            },
+            {
+                average: 4,
+                percentageComparedToLowest: 300,
+                startsAt: MOCK_DAY_2_0,
+            },
+        ],
+    }
     expect(
-        getPeriods(MOCK_PRICE_INFO, { numberOfPeriods: 4, periodLength: 3 })
+        getPeriodInfo(MOCK_PRICE_INFO, { numberOfPeriods: 4, periodLength: 3 })
     ).toStrictEqual(expectedAll)
 
-    const expected = [
-        { startsAt: '0', total: 3 },
-        { startsAt: '1', total: 6 },
-        { startsAt: '2', total: 9 },
-        { startsAt: '3', total: 12 },
-    ]
     expect(
-        getPeriods(MOCK_PRICE_INFO, { numberOfPeriods: 4, periodLength: 3 })
-    ).toStrictEqual(expected)
+        getPeriodInfo(MOCK_PRICE_INFO, { numberOfPeriods: 4, periodLength: 3 })
+    ).toStrictEqual(expectedAll)
 
     expect(
-        getPeriods(MOCK_PRICE_INFO, { numberOfPeriods: 4, periodLength: 0 })
-    ).toStrictEqual([])
+        getPeriodInfo(MOCK_PRICE_INFO, { numberOfPeriods: 4, periodLength: 0 })
+    ).toStrictEqual({ lowestToday: '', lowestTomorrow: '', periods: [] })
 })
