@@ -5,3 +5,4 @@ yarn generate
 yarn prettier
 yarn lint
 yarn test
+yarn coverage
