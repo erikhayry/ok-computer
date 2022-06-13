@@ -1,10 +1,10 @@
 interface IPrice {
-    startsAt: string;
-    total: number;
+    startsAt: string
+    total: number
 }
 
 interface IPriceInfo {
-    currentStartsAt: string 
+    currentStartsAt: string
     today: IPrice[]
     tomorrow: IPrice[]
 }

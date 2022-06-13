@@ -1,8 +1,8 @@
 schema: https://api.tibber.com/v1-beta/gql
 documents: './fetch/schema.graphql'
 generates:
-  fetch/generated.ts:
-    plugins:
-      - typescript
-      - typescript-operations
-      - typed-document-node
+    fetch/generated.ts:
+        plugins:
+            - typescript
+            - typescript-operations
+            - typed-document-node
