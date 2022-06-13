@@ -1,21 +1,16 @@
-function getOre(value: number) {
-    if (value > 0) {
-        const ore = value * 100
+export function toKrOre(value: number): { kr: number; ore: number } {
+    const base = Math.round(value * 100)
+    const kr = Math.floor(base / 100)
+    const ore = base % 100
 
-        return `${ore.toFixed()} öre`
-    }
-
-    return ''
+    return { kr, ore }
 }
 
 export function printCurrency(value: number): string {
-    if (value < 0.995) {
-        return getOre(value)
-    }
-    const kronor = value < 1 ? 1 : Math.floor(value)
-    const ore = getOre(value - kronor)
-    const oreString = ore ? ` ${ore}` : ''
-    const denomination = kronor < 2 ? 'krona' : 'kronor'
+    const { kr, ore } = toKrOre(value)
 
-    return `${kronor} ${denomination}${oreString}`
+    const kronorStr = kr ? `${kr} kr` : ''
+    const oreStr = ore ? `${ore} öre` : ''
+
+    return `${kronorStr} ${oreStr}`.trim()
 }

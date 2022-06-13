@@ -1,18 +1,23 @@
-export function toPeriod(
-    { startsAt }: IPrice,
-    index: number,
-    arr: IPrice[]
-): IPrice | null {
-    const dayOnePrice = arr[index].total
-    const dayTwoPrice = arr[index + 1]?.total
-    const dayThreePrice = arr[index + 2]?.total
-    const total = dayOnePrice + dayTwoPrice + dayThreePrice
+function totalSum(total: number, price: IPrice) {
+    return total + price.total
+}
 
-    if (isNaN(total)) {
-        return null
+export function toPeriod(
+    startsAt: string,
+    index: number,
+    arr: IPrice[],
+    periodLength?: number
+): IPrice | null {
+    if (periodLength) {
+        const days = arr.slice(index, index + periodLength)
+        if (days.length === periodLength) {
+            const total = days.reduce(totalSum, 0)
+
+            return { startsAt, total }
+        }
     }
 
-    return { startsAt, total }
+    return null
 }
 
 function byTotal(a: IPrice, b: IPrice) {
@@ -33,25 +38,24 @@ export function mapPriceInfoToPrices(priceInfo: IPriceInfo): IPrice[] {
     return allHours.slice(nowIndex)
 }
 
-export function mapHoursToPeriods(prices: IPrice[]): IPrice[] {
-    return prices.map(toPeriod).filter(outNull).sort(byTotal)
+export function mapHoursToPeriods(
+    prices: IPrice[],
+    periodLength?: number
+): IPrice[] {
+    return prices
+        .map(({ startsAt }, index, arr) =>
+            toPeriod(startsAt, index, arr, periodLength)
+        )
+        .filter(outNull)
+        .sort(byTotal)
 }
 
-export function getPeriods(priceInfo: IPriceInfo, size: number): IPrice[] {
+export function getPeriods(
+    priceInfo: IPriceInfo,
+    { numberOfPeriods, periodLength }: IConfig
+): IPrice[] {
     const hourlyPrices = mapPriceInfoToPrices(priceInfo)
-    const periodsSorted = mapHoursToPeriods(hourlyPrices)
+    const periodsSorted = mapHoursToPeriods(hourlyPrices, periodLength)
 
-    return periodsSorted.slice(0, size)
-}
-
-export function toDate(dateString: string) {
-    const date = new Date(dateString)
-    const options: Intl.DateTimeFormatOptions = {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-    }
-    return date.toLocaleDateString('sv-SE', options)
+    return periodsSorted.slice(0, numberOfPeriods)
 }

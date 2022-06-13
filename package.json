@@ -3,14 +3,16 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev",
+        "dev:only": "next dev",
+        "dev": "concurrently \"yarn test:watch\" \"yarn dev:only\"",
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
         "prettier": "npx prettier --config ./prettierrc.json --write .",
         "test:watch": "jest --watch",
         "test": "jest",
-        "generate": "graphql-codegen"
+        "generate": "graphql-codegen",
+        "coverage": "jest --coverage"
     },
     "dependencies": {
         "@apollo/client": "^3.6.6",
@@ -33,6 +35,7 @@
         "@types/node": "17.0.38",
         "@types/react": "18.0.10",
         "@types/react-dom": "18.0.5",
+        "concurrently": "^7.2.1",
         "eslint": "8.16.0",
         "eslint-config-next": "12.1.6",
         "husky": "^8.0.1",

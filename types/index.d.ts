@@ -8,3 +8,8 @@ interface IPriceInfo {
     today: IPrice[]
     tomorrow: IPrice[]
 }
+
+interface IConfig {
+    numberOfPeriods?: number
+    periodLength?: number
+}
