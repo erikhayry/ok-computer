@@ -1,8 +1,3 @@
-import classnames, {
-    display,
-    flexGrow,
-    justifyContent,
-} from 'tailwindcss-classnames'
 import { DAY, IConfig, IPriceInfo } from '../../types'
 import { printCurrency } from '../../utils/currency'
 import { toTime } from '../../utils/date'
@@ -23,11 +18,22 @@ interface IPeriodProps {
     day: DAY
     percentageComparedToLowest: number
     percentageComparedToHighest: number
+    isNow: boolean
 }
 
 const COPY = {
     [DAY.TODAY]: 'Idag',
     [DAY.TOMORROW]: 'Imorgon',
+}
+
+const Label = ({ copy, color }: { copy: string; color: string }) => {
+    return (
+        <div
+            className={`text-xs px-4 py-1 rounded-xl min-w-[100px] flex justify-center ${color}`}
+        >
+            {copy}
+        </div>
+    )
 }
 
 const Period = ({
@@ -36,23 +42,37 @@ const Period = ({
     day,
     percentageComparedToLowest,
     percentageComparedToHighest,
+    isNow,
 }: IPeriodProps) => {
+    const dayClassName = day === DAY.TODAY ? 'bg-gray-400' : 'bg-gray-200'
+    const nowClassName = isNow ? 'bg-pink-400' : 'bg-black'
+
     return (
-        <div className="p-2 mb-2 bg-white text-black flex gap-2 rounded">
-            <div className="flex items-center">
-                <h2>
-                    {COPY[day]} {toTime(startsAt)}
-                </h2>
+        <div
+            className={`mb-4  text-black  flex gap-2 rounded-lg overflow-hidden uppercase ${nowClassName}`}
+        >
+            <div
+                className={`flex flex-col justify-center items-center p-4 w-[100px] ${dayClassName}`}
+            >
+                <div className="text-xs">{COPY[day]}</div>
+                <div className="text-xl strong">{toTime(startsAt)}</div>
             </div>
-            <div className="flex-grow flex justify-center items-center">
-                <p>Snittpris: {printCurrency(average)}</p>
+            <div className="flex-grow flex flex-col justify-center items-center text-lg p-t-4 p-b-4 gap-1 text-white">
+                <div className="text-xs">Snittpris</div>
+                <div className="text-xl strong">{printCurrency(average)}</div>
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center justify-evenly p-4 gap-4">
                 {Boolean(percentageComparedToLowest) && (
-                    <p>{percentageComparedToLowest}% dyrare</p>
+                    <Label
+                        copy={`${percentageComparedToLowest}% dyrare`}
+                        color="bg-red-100"
+                    />
                 )}
                 {Boolean(percentageComparedToHighest) && (
-                    <p>{percentageComparedToHighest}% billigare</p>
+                    <Label
+                        copy={`${percentageComparedToHighest}% billigare`}
+                        color="bg-green-100"
+                    />
                 )}
             </div>
         </div>
@@ -69,13 +89,7 @@ export const Periods = ({ priceInfo }: IProps) => {
         <>
             <div className="p-2 mb-2 flex hidden">
                 {lowestToday && (
-                    <p
-                        className={classnames(
-                            display('flex'),
-                            flexGrow('grow'),
-                            justifyContent('justify-center')
-                        )}
-                    >
+                    <p className="flex-grow flex justify-center">
                         Lägst idag {toTime(lowestToday.startsAt)} (
                         {printCurrency(lowestToday.average)})
                     </p>
@@ -90,7 +104,12 @@ export const Periods = ({ priceInfo }: IProps) => {
             <ul>
                 {periods.map((period) => (
                     <li key={period.startsAt}>
-                        <Period {...period} />
+                        <Period
+                            {...period}
+                            isNow={
+                                priceInfo.currentStartsAt === period.startsAt
+                            }
+                        />
                     </li>
                 ))}
             </ul>

@@ -14,13 +14,16 @@ interface IProps {
 const Home: NextPage<IProps> = ({ priceInfo }) => {
     const isVisible = useInForeground()
     const scrollPosition = useScrollPosition()
-    console.log(isVisible, scrollPosition)
 
     useEffect(() => {
         if (scrollPosition < -5) {
             location.reload()
         }
     }, [scrollPosition])
+
+    useEffect(() => {
+        console.log(isVisible)
+    }, [isVisible])
 
     return (
         <>
@@ -44,7 +47,7 @@ const Home: NextPage<IProps> = ({ priceInfo }) => {
                 <meta name="theme-color" content="#000000" />
             </Head>
 
-            <main className="container">
+            <main className="container font-sans antialiased p-4">
                 {priceInfo && <Periods priceInfo={priceInfo} />}
             </main>
         </>
