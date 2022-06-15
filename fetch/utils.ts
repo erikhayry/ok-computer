@@ -1,3 +1,4 @@
+import { IPrice, IPriceInfo } from '../types'
 import { ViewerHomesQuery } from './generated'
 
 export function outPriceWithoutData(item: any): item is IPrice {
