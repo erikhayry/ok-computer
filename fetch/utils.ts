@@ -10,8 +10,8 @@ export function outUndefined<T>(value: T | undefined | null): value is T {
 }
 
 interface IApiHour {
-    total?: number | null | undefined
-    startsAt?: string | null | undefined
+    total?: number | null
+    startsAt?: string | null
 }
 
 export function mapToPricesWithData(hours: (IApiHour | null)[] = []): IPrice[] {
