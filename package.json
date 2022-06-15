@@ -7,7 +7,7 @@
         "dev": "concurrently \"yarn test:watch\" \"yarn dev:only\"",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint",
+        "lint": "next lint -- --fix",
         "prettier": "npx prettier --config ./prettierrc.json --write .",
         "test:watch": "jest --watch",
         "test": "jest",
