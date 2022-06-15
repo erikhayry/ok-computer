@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import { Periods } from '../components/periods/periods'
 import { getPriceInfo } from '../fetch'
+import { IPriceInfo } from '../types'
 
 interface IProps {
     priceInfo: IPriceInfo | undefined
@@ -11,7 +12,7 @@ interface IProps {
 
 const Home: NextPage<IProps> = ({ priceInfo, lowestToday, lowestTomorrow }) => {
     return (
-        <div>
+        <>
             <Head>
                 <title>App</title>
                 <meta
@@ -21,12 +22,12 @@ const Home: NextPage<IProps> = ({ priceInfo, lowestToday, lowestTomorrow }) => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
 
-            <main className="container mx-auto px-4">
+            <main className="container">
                 {lowestToday && <p> Billigaste idag: {lowestToday}</p>}
                 {lowestTomorrow && <p> Billigast imorgon: {lowestTomorrow}</p>}
                 {priceInfo && <Periods priceInfo={priceInfo} />}
             </main>
-        </div>
+        </>
     )
 }
 

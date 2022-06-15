@@ -1,3 +1,4 @@
+import { IPrice } from '../types'
 import { ViewerHomesQuery } from './generated'
 import {
     mapToPricesWithData,

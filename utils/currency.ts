@@ -8,7 +8,6 @@ export function toKrOre(value: number): { kr: number; ore: number } {
 
 export function printCurrency(value: number): string {
     const { kr, ore } = toKrOre(value)
-
     const kronorStr = kr ? `${kr} kr` : ''
     const oreStr = ore ? `${ore} öre` : ''
 

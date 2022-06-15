@@ -1,5 +1,6 @@
+import { DAY, IConfig, IPriceInfo } from '../../types'
 import { printCurrency } from '../../utils/currency'
-import { toDate } from '../../utils/date'
+import { toTime } from '../../utils/date'
 import { getPeriodInfo } from './periodsUtils'
 
 interface IProps {
@@ -14,45 +15,74 @@ const CONFIG: IConfig = {
 interface IPeriodProps {
     startsAt: string
     average: number
+    day: DAY
     percentageComparedToLowest: number
+    percentageComparedToHighest: number
+}
+
+const COPY = {
+    [DAY.TODAY]: 'Idag',
+    [DAY.TOMORROW]: 'Imorgon',
 }
 
 const Period = ({
     startsAt,
     average,
+    day,
     percentageComparedToLowest,
+    percentageComparedToHighest,
 }: IPeriodProps) => {
     return (
-        <div className="card bg-neutral text-neutral-content">
-            <div className="card-body items-center text-center">
-                <h2 className="card-title">{toDate(startsAt)}</h2>
-                <p>
-                    Snittpris: {printCurrency(average)} (
-                    {percentageComparedToLowest}% dyrare)
-                </p>
+        <div className="p-2 mb-2 bg-white text-black flex gap-2 rounded">
+            <div className="flex items-center">
+                <h2>
+                    {COPY[day]} {toTime(startsAt)}
+                </h2>
+            </div>
+            <div className="flex-grow flex justify-center items-center">
+                <p>Snittpris: {printCurrency(average)}</p>
+            </div>
+            <div className="flex flex-col items-center">
+                {Boolean(percentageComparedToLowest) && (
+                    <p>{percentageComparedToLowest}% dyrare</p>
+                )}
+                {Boolean(percentageComparedToHighest) && (
+                    <p>{percentageComparedToHighest}% billigare</p>
+                )}
             </div>
         </div>
     )
 }
 
 export const Periods = ({ priceInfo }: IProps) => {
-    const { periods } = getPeriodInfo(priceInfo, CONFIG)
+    const { periods, lowestToday, lowestTomorrow } = getPeriodInfo(
+        priceInfo,
+        CONFIG
+    )
 
     return (
-        <ul>
-            {periods.map(
-                ({ startsAt, average, percentageComparedToLowest }) => (
-                    <li key={startsAt} className="mb-1">
-                        <Period
-                            startsAt={startsAt}
-                            average={average}
-                            percentageComparedToLowest={
-                                percentageComparedToLowest
-                            }
-                        />
+        <>
+            <div className="p-2 mb-2 flex">
+                {lowestToday && (
+                    <p className="flex-grow flex justify-center">
+                        Lägst idag {toTime(lowestToday.startsAt)} (
+                        {printCurrency(lowestToday.average)})
+                    </p>
+                )}
+                {lowestTomorrow && (
+                    <p className="flex-grow flex justify-center">
+                        Lägst imorgon {toTime(lowestTomorrow.startsAt)} (
+                        {printCurrency(lowestTomorrow.average)})
+                    </p>
+                )}
+            </div>
+            <ul>
+                {periods.map((period) => (
+                    <li key={period.startsAt}>
+                        <Period {...period} />
                     </li>
-                )
-            )}
-        </ul>
+                ))}
+            </ul>
+        </>
     )
 }

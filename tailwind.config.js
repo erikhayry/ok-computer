@@ -3,7 +3,7 @@ module.exports = {
         './pages/**/*.{js,ts,jsx,tsx}',
         './components/**/*.{js,ts,jsx,tsx}',
     ],
-    darkMode: true, // or 'media' or 'class'
+    darkMode: true,
     theme: {
         container: {
             center: true,
@@ -12,5 +12,5 @@ module.exports = {
     variants: {
         extend: {},
     },
-    plugins: [require('daisyui')],
+    plugins: [],
 }

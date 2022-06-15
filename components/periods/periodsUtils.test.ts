@@ -1,4 +1,7 @@
+import { DAY, IPeriod, IPeroidInfo, IPrice, IPriceInfo } from '../../types'
 import {
+    getDay,
+    getLowest,
     getPeriodInfo,
     mapHoursToPeriods,
     mapPriceInfoToPrices,
@@ -6,12 +9,28 @@ import {
     toPrice,
 } from './periodsUtils'
 
-const MOCK_DAY_1_0 = '2022-06-10T00:00:00.000+02:00'
-const MOCK_DAY_1_1 = '2022-06-10T01:00:00.000+02:00'
-const MOCK_DAY_1_2 = '2022-06-10T02:00:00.000+02:00'
-const MOCK_DAY_2_0 = '2022-06-11T00:00:00.000+02:00'
-const MOCK_DAY_2_1 = '2022-06-11T01:00:00.000+02:00'
-const MOCK_DAY_2_2 = '2022-06-11T02:00:00.000+02:00'
+const SECOND = 1000
+const MINUTE = 60 * SECOND
+const HOUR = 60 * MINUTE
+const FULL_DAY = HOUR * 24
+
+function toString(date: number): string {
+    return new Date(date).toLocaleString()
+}
+
+function addHour(date: number, hours = 1): string {
+    return toString(new Date(date).getTime() + HOUR * hours)
+}
+
+const today = new Date().setHours(0, 0, 0, 0)
+const MOCK_DAY_1_0 = toString(today)
+const MOCK_DAY_1_1 = addHour(today)
+const MOCK_DAY_1_2 = addHour(today, 2)
+
+const tomorrow = new Date(new Date(today).getTime() + FULL_DAY).getTime()
+const MOCK_DAY_2_0 = toString(tomorrow)
+const MOCK_DAY_2_1 = addHour(tomorrow)
+const MOCK_DAY_2_2 = addHour(tomorrow, 2)
 
 const MOCK_HOURS_TODAY = [
     { startsAt: MOCK_DAY_1_0, total: 0 },
@@ -58,11 +77,13 @@ test('toPrice', () => {
 })
 
 test('toPeriod', () => {
-    const period1 = toPeriod(MOCK_DAY_1_1, 4, 2, 5)
-    const expected1 = {
+    const period1 = toPeriod(MOCK_DAY_1_1, 4, 2, 8, 5)
+    const expected1: IPeriod = {
         average: 0.8,
         percentageComparedToLowest: 100,
+        percentageComparedToHighest: 50,
         startsAt: MOCK_DAY_1_1,
+        day: DAY.TODAY,
     }
     expect(period1).toStrictEqual(expected1)
 })
@@ -88,56 +109,47 @@ test('mapPriceInfoToPrices', () => {
     expect(pricesFromTomorrow).toStrictEqual(MOCK_HOURS_TOMORROW)
 })
 
+const EXPTECTED_PERIODS_ALL: IPeriod[] = [
+    {
+        average: 1,
+        percentageComparedToLowest: 0,
+        percentageComparedToHighest: 75,
+        startsAt: MOCK_DAY_1_0,
+        day: DAY.TODAY,
+    },
+    {
+        average: 2,
+        percentageComparedToLowest: 100,
+        percentageComparedToHighest: 50,
+        startsAt: MOCK_DAY_1_1,
+        day: DAY.TODAY,
+    },
+    {
+        average: 3,
+        percentageComparedToLowest: 200,
+        percentageComparedToHighest: 25,
+        startsAt: MOCK_DAY_1_2,
+        day: DAY.TODAY,
+    },
+    {
+        average: 4,
+        percentageComparedToLowest: 300,
+        percentageComparedToHighest: 0,
+        startsAt: MOCK_DAY_2_0,
+        day: DAY.TOMORROW,
+    },
+]
+
 test('mapHoursToPeriods', () => {
     const periods = mapHoursToPeriods(MOCK_HOURS, 3)
-    const expected = [
-        { startsAt: MOCK_DAY_1_0, average: 1, percentageComparedToLowest: 0 },
-        {
-            startsAt: MOCK_DAY_1_1,
-            average: 2,
-            percentageComparedToLowest: 100,
-        },
-        {
-            startsAt: MOCK_DAY_1_2,
-            average: 3,
-            percentageComparedToLowest: 200,
-        },
-
-        {
-            startsAt: MOCK_DAY_2_0,
-            average: 4,
-            percentageComparedToLowest: 300,
-        },
-    ]
-    expect(periods).toStrictEqual(expected)
+    expect(periods).toStrictEqual(EXPTECTED_PERIODS_ALL)
 })
 
 test('getPeriodInfo', () => {
-    const expectedAll = {
-        lowestToday: '',
-        lowestTomorrow: '',
-        periods: [
-            {
-                average: 1,
-                percentageComparedToLowest: 0,
-                startsAt: MOCK_DAY_1_0,
-            },
-            {
-                average: 2,
-                percentageComparedToLowest: 100,
-                startsAt: MOCK_DAY_1_1,
-            },
-            {
-                average: 3,
-                percentageComparedToLowest: 200,
-                startsAt: MOCK_DAY_1_2,
-            },
-            {
-                average: 4,
-                percentageComparedToLowest: 300,
-                startsAt: MOCK_DAY_2_0,
-            },
-        ],
+    const expectedAll: IPeroidInfo = {
+        periods: EXPTECTED_PERIODS_ALL,
+        lowestToday: EXPTECTED_PERIODS_ALL[0],
+        lowestTomorrow: EXPTECTED_PERIODS_ALL[3],
     }
     expect(
         getPeriodInfo(MOCK_PRICE_INFO, { numberOfPeriods: 4, periodLength: 3 })
@@ -149,5 +161,29 @@ test('getPeriodInfo', () => {
 
     expect(
         getPeriodInfo(MOCK_PRICE_INFO, { numberOfPeriods: 4, periodLength: 0 })
-    ).toStrictEqual({ lowestToday: '', lowestTomorrow: '', periods: [] })
+    ).toStrictEqual({
+        periods: [],
+        lowestToday: undefined,
+        lowestTomorrow: undefined,
+    })
+})
+
+test('getDay', () => {
+    expect(getDay(MOCK_DAY_1_0)).toEqual(DAY.TODAY)
+    expect(getDay(MOCK_DAY_2_0)).toEqual(DAY.TOMORROW)
+})
+
+test('getLowest', () => {
+    const { today, tomorrow } = getLowest(EXPTECTED_PERIODS_ALL)
+    expect(today).toEqual(EXPTECTED_PERIODS_ALL[0])
+    expect(tomorrow).toEqual(EXPTECTED_PERIODS_ALL[3])
+
+    const [firstToday, sedondToday, thirdToday] = EXPTECTED_PERIODS_ALL
+    const lowestUnsortedTodayOnly = getLowest([
+        sedondToday,
+        thirdToday,
+        firstToday,
+    ])
+    expect(lowestUnsortedTodayOnly.today).toEqual(EXPTECTED_PERIODS_ALL[0])
+    expect(lowestUnsortedTodayOnly.tomorrow).toBeUndefined()
 })

@@ -1,5 +1,6 @@
 import { ApolloQueryResult } from '@apollo/client'
 import { DocumentNode } from 'graphql'
+import { IPriceInfo } from '../types'
 import client from './client'
 import { ViewerHomesDocument, ViewerHomesQuery } from './generated'
 import { mapViewerHomesQueryToPriceInfo } from './utils'
