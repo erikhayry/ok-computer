@@ -1,16 +1,27 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import { useEffect } from 'react'
 import { Periods } from '../components/periods/periods'
 import { getPriceInfo } from '../fetch'
+import { useInForeground } from '../hooks/useInForeground'
+import { useScrollPosition } from '../hooks/useScrollPosition'
 import { IPriceInfo } from '../types'
 
 interface IProps {
     priceInfo: IPriceInfo | undefined
-    lowestToday: string
-    lowestTomorrow: string
 }
 
-const Home: NextPage<IProps> = ({ priceInfo, lowestToday, lowestTomorrow }) => {
+const Home: NextPage<IProps> = ({ priceInfo }) => {
+    const isVisible = useInForeground()
+    const scrollPosition = useScrollPosition()
+    console.log(isVisible, scrollPosition)
+
+    useEffect(() => {
+        if (scrollPosition < -5) {
+            location.reload()
+        }
+    }, [scrollPosition])
+
     return (
         <>
             <Head>
@@ -34,8 +45,6 @@ const Home: NextPage<IProps> = ({ priceInfo, lowestToday, lowestTomorrow }) => {
             </Head>
 
             <main className="container">
-                {lowestToday && <p> Billigaste idag: {lowestToday}</p>}
-                {lowestTomorrow && <p> Billigast imorgon: {lowestTomorrow}</p>}
                 {priceInfo && <Periods priceInfo={priceInfo} />}
             </main>
         </>

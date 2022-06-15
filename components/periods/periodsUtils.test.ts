@@ -174,9 +174,9 @@ test('getDay', () => {
 })
 
 test('getLowest', () => {
-    const { today, tomorrow } = getLowest(EXPTECTED_PERIODS_ALL)
-    expect(today).toEqual(EXPTECTED_PERIODS_ALL[0])
-    expect(tomorrow).toEqual(EXPTECTED_PERIODS_ALL[3])
+    const lowestPeriods = getLowest(EXPTECTED_PERIODS_ALL)
+    expect(lowestPeriods.today).toEqual(EXPTECTED_PERIODS_ALL[0])
+    expect(lowestPeriods.tomorrow).toEqual(EXPTECTED_PERIODS_ALL[3])
 
     const [firstToday, sedondToday, thirdToday] = EXPTECTED_PERIODS_ALL
     const lowestUnsortedTodayOnly = getLowest([

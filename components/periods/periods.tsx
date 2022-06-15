@@ -1,3 +1,8 @@
+import classnames, {
+    display,
+    flexGrow,
+    justifyContent,
+} from 'tailwindcss-classnames'
 import { DAY, IConfig, IPriceInfo } from '../../types'
 import { printCurrency } from '../../utils/currency'
 import { toTime } from '../../utils/date'
@@ -62,9 +67,15 @@ export const Periods = ({ priceInfo }: IProps) => {
 
     return (
         <>
-            <div className="p-2 mb-2 flex">
+            <div className="p-2 mb-2 flex hidden">
                 {lowestToday && (
-                    <p className="flex-grow flex justify-center">
+                    <p
+                        className={classnames(
+                            display('flex'),
+                            flexGrow('grow'),
+                            justifyContent('justify-center')
+                        )}
+                    >
                         Lägst idag {toTime(lowestToday.startsAt)} (
                         {printCurrency(lowestToday.average)})
                     </p>
