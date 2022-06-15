@@ -47,7 +47,7 @@ test('mapToPricesWithData', () => {
         { startsAt: '' },
         { total: 0 },
     ]
-    expect(mapToPricesWithData(undefined)).toEqual([])
+    expect(mapToPricesWithData()).toEqual([])
     expect(
         mapToPricesWithData([...MOCK_FALSY_PRICES, MOCK_PRICE_1, MOCK_PRICE_2])
     ).toEqual([MOCK_PRICE_1, MOCK_PRICE_2])

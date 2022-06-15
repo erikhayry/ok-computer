@@ -66,19 +66,15 @@ export function getPeriodPrices(
 
 export function mapHoursToPeriods(
     prices: IPrice[],
-    periodLength?: number
+    periodLength: number
 ): IPeriod[] {
-    const periodPrices = getPeriodPrices(prices, periodLength)
-    const periodPricesSorted = periodPrices.sort(byTotal)
+    const periodPricesSorted = getPeriodPrices(prices, periodLength).sort(
+        byTotal
+    )
     const lowestTotal = periodPricesSorted[0]?.total
 
     return periodPricesSorted.map(({ startsAt, total }) =>
-        toPeriod(
-            startsAt,
-            total,
-            lowestTotal,
-            periodLength || periodPricesSorted.length
-        )
+        toPeriod(startsAt, total, lowestTotal, periodLength)
     )
 }
 export function getPeriodInfo(

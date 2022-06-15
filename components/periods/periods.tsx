@@ -7,7 +7,7 @@ interface IProps {
 }
 
 const CONFIG: IConfig = {
-    //numberOfPeriods: 5,
+    numberOfPeriods: 48,
     periodLength: 3,
 }
 

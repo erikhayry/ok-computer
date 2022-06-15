@@ -22,6 +22,6 @@ interface IPriceInfo {
 }
 
 interface IConfig {
-    numberOfPeriods?: number
-    periodLength?: number
+    numberOfPeriods: number
+    periodLength: number
 }
