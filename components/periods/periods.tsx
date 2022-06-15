@@ -44,8 +44,8 @@ const Period = ({
     percentageComparedToHighest,
     isNow,
 }: IPeriodProps) => {
-    const dayClassName = day === DAY.TODAY ? 'bg-gray-400' : 'bg-gray-200'
-    const nowClassName = isNow ? 'bg-pink-400' : 'bg-black'
+    const dayClassName = day === DAY.TODAY ? 'bg-gray-100' : 'bg-gray-200'
+    const nowClassName = isNow ? 'bg-gray-800' : 'bg-black'
 
     return (
         <div
@@ -65,13 +65,13 @@ const Period = ({
                 {Boolean(percentageComparedToLowest) && (
                     <Label
                         copy={`${percentageComparedToLowest}% dyrare`}
-                        color="bg-red-100"
+                        color="bg-gray-100"
                     />
                 )}
                 {Boolean(percentageComparedToHighest) && (
                     <Label
                         copy={`${percentageComparedToHighest}% billigare`}
-                        color="bg-green-100"
+                        color="bg-gray-200"
                     />
                 )}
             </div>
